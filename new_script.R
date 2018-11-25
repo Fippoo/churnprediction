@@ -1,16 +1,22 @@
+.libPaths(.libPaths()[2])
+
 # loading libraries
+library(ggplot2)
+library(data.table)
 library(rpart)      # Creating decision tree
 library(rpart.plot) # Plot decision tree
 library(caret)      # Claculate model performance
 library(e1071)      # Claculate model accuracy
 library(shiny)      # For ShinyApp
+library(ggpubr)     # For grid plots
+library(scales)     # Show percentages on ggplot
 
 # Hello world example for shiny app
 runExample("01_hello")
 
 
 ### [1] Read the dataset
-filepath <- "C:/Users/psmai/Documents/Wissen/ISO HS Aalen/Business Analytics - Anwendungsentwicklung/TelcoCustomerChurn/data/telco-customer-churn/dataset.csv"
+filepath <- "dataset.csv"
 df <- read.csv(file = filepath)
 
 ### [2] UNDERSTANDING the dataset
@@ -25,30 +31,81 @@ length(unique(df$customerID))
 
 # Look on demographic features
 # Gender, Partner, Dependents, SeniorCItizens
-plot(x = df$gender, y = df$Churn)
-df$SeniorCitizen <- as.factor(df$SeniorCitizen)
-plot(x = df$SeniorCitizen, y = df$Churn)
-df$Partner <- as.factor(df$Partner)
-plot(x = df$Partner, y = df$Churn)
+plt1 <- ggplot(df, aes(x=gender,fill=Churn)) + 
+  geom_bar() + 
+  ggtitle("Churn per Gender") +
+  ylab("Percentage") +
+  scale_y_continuous(labels = scales::percent) + 
+  scale_fill_manual(values = c("steelblue", "grey"))
+plt2 <- ggplot(df, aes(x=Partner,fill=Churn)) + 
+  geom_bar(position = 'fill') + 
+  ggtitle("Churn per Partner") +
+  ylab("Percentage") +
+  scale_y_continuous(labels = scales::percent) + 
+  scale_fill_manual(values = c("steelblue", "grey"))
+plt3 <- ggplot(df, aes(x=Dependents,fill=Churn)) + 
+  geom_bar(position = 'fill') + 
+  ggtitle("Churn per Dependents") +
+  ylab("Percentage") +
+  scale_y_continuous(labels = scales::percent) + 
+  scale_fill_manual(values = c("steelblue", "grey"))
+plt4 <- ggplot(df, aes(x=SeniorCitizen,fill=Churn)) + 
+  geom_bar(position = 'fill') + 
+  ggtitle("Churn per SeniorCitizen") +
+  ylab("Percentage") +
+  scale_y_continuous(labels = scales::percent) + 
+  scale_fill_manual(values = c("steelblue", "grey"))
+gg_plt1 <- ggarrange(plt1, plt2, plt3, plt4, ncol = 2, nrow = 2)
+gg_plt1
+annotate_figure(gg_plt1,   top = "DEMOGRAPHIC FEATURES")
 
 # Look into services features
 # phone, multiple lines, internet, online security, online backup,
 # device protection, tech support, and streaming TV and movies
-unique(df$PhoneService)
-plot(x = df$PhoneService, y = df$Churn)
-unique(df$StreamingTV)
-plot(x = df$StreamingTV, y = df$Churn)
-unique(df$OnlineSecurity)
-plot(x = df$OnlineSecurity, y = df$Churn)
-unique(df$DeviceProtection)
-plot(x = df$DeviceProtection, y = df$Churn)
+plt1 <- ggplot(df, aes(x=PhoneService,fill=Churn)) + 
+  geom_bar(position = 'fill') + 
+  ggtitle("Churn per PhoneService") +
+  ylab("Percentage") +
+  scale_y_continuous(labels = scales::percent) + 
+  scale_fill_manual(values = c("steelblue", "grey")) 
+plt2 <- ggplot(df, aes(x=StreamingTV,fill=Churn)) + 
+  geom_bar(position = 'fill') + 
+  ggtitle("Churn per StreamingTV") +
+  ylab("Percentage") +
+  scale_y_continuous(labels = scales::percent) + 
+  scale_fill_manual(values = c("steelblue", "grey"))
+plt3 <- ggplot(df, aes(x=OnlineSecurity,fill=Churn)) + 
+  geom_bar(position = 'fill') + 
+  ggtitle("Churn per OnlineSecurity") +
+  ylab("Percentage") +
+  scale_y_continuous(labels = scales::percent) + 
+  scale_fill_manual(values = c("steelblue", "grey"))
+plt4 <- ggplot(df, aes(x=DeviceProtection,fill=Churn)) + 
+  geom_bar(position = 'fill') + 
+  ggtitle("Churn per DeviceProtection") +
+  ylab("Percentage") +
+  scale_y_continuous(labels = scales::percent) + 
+  scale_fill_manual(values = c("steelblue", "grey"))
+gg_plt2 <- ggarrange(plt1, plt2, plt3, plt4, ncol = 2, nrow = 2)
+gg_plt2
+annotate_figure(gg_plt2,   top = "SERVICE FEATURES")
 
 # Look into Customer account information features
-unique(df$Contract)
-plot(x = df$Contract, y = df$Churn)
-unique(df$PaperlessBilling)
-plot(x = df$PaperlessBilling, y = df$Churn)
-
+plt1 <- ggplot(df, aes(x=Contract,fill=Churn)) + 
+  geom_bar(position = 'fill') + 
+  ggtitle("Churn per Contract") +
+  ylab("Percentage") +
+  scale_y_continuous(labels = scales::percent) + 
+  scale_fill_manual(values = c("steelblue", "grey"))
+plt2 <- ggplot(df, aes(x=PaperlessBilling,fill=Churn)) + 
+  geom_bar(position = 'fill') + 
+  ggtitle("Churn per PaperlessBilling") +
+  ylab("Percentage") +
+  scale_y_continuous(labels = scales::percent) + 
+  scale_fill_manual(values = c("steelblue", "grey"))
+gg_plt2 <- ggarrange(plt1, plt2, ncol = 2, nrow = 1)
+gg_plt2
+annotate_figure(gg_plt2,   top = "CUSTOMER'S ACCOUNT FEATURES")
 
 ### [3] CLEANING THE DATASET
 # Looking for missing values in the dataset
@@ -120,7 +177,7 @@ df_test <- df[-ind, ]
 colnames(df)
 
 # CART model
-decisionTree = rpart(Churn ~ SeniorCitizen+SeniorCitizen+tenure+PhoneService+
+decisionTree = rpart(Churn ~ SeniorCitizen+tenure+PhoneService+
                        MultipleLines+InternetService+OnlineSecurity+OnlineBackup+
                        DeviceProtection+TechSupport+StreamingTV+StreamingMovies+
                        Contract+PaperlessBilling+PaymentMethod+ART_countOfService+
@@ -141,5 +198,5 @@ cm <- confusionMatrix(original, predictions)
 print(paste0("Model accuracy is ", 100*cm$overall[1], "%"))
 
 # Command to run shiny app
-location_ui_server = "C:/Users/psmai/Documents/Wissen/ISO HS Aalen/Business Analytics - Anwendungsentwicklung/TelcoCustomerChurn/shinyapp"
+location_ui_server = "shinyapp/"
 runApp(location_ui_server)
