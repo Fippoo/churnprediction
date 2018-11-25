@@ -7,16 +7,46 @@ shinyUI(pageWithSidebar(
   headerPanel("Customer Churn Prediction"),
   
   sidebarPanel(
-    selectInput("variable", "Variable:",
-                list("Churn for Dependents" = "plt1", 
-                     "Churn for Tenure" = "plt2", 
-                     "Churn for Contract" = "plt3",
-                     "Churn for PaperlessBilling" = "plt4",
-                     "Decision Tree Plot" = "plt5",
-                     "Decision Tree ROC Plot" = "plt6"))
+    width=0.1
   ),
   
   mainPanel(
-    plotOutput("churnPlots")
+    titlePanel("Telco Customer's Data"),
+    
+    h3(textOutput("TEXT0")),
+    textOutput("TEXT01"),
+    
+    h3(textOutput("TEXT1")),
+    textOutput("TEXT2"),
+    
+    h3(textOutput("TEXT3")),
+    htmlOutput("TEXT4"),
+    
+    h3(textOutput("TEXT5")),
+    htmlOutput("TEXT6"),
+    
+    DT::dataTableOutput("render_dataframe"),
+
+    #selectInput("variable", "Select different plots:",
+    #            list("Customer Demographic Plots" = "plt1", 
+    #                 "Telco Services Plots" = "plt2", 
+    #                 "Customer's Account Plots" = "plt3",
+    #                 "Decision Tree Plot" = "plt5",
+    #                 "Decision Tree ROC Plot" = "plt6")),
+    htmlOutput("TEXT7"),
+    plotOutput("demographicPlots"),
+    
+    htmlOutput("TEXT8"),
+    plotOutput("servicePlots"),
+    
+    htmlOutput("TEXT9"),
+    plotOutput("accountPlots"),
+    
+    htmlOutput("TEXT10"),
+    plotOutput("dtreePlots"),
+    
+    htmlOutput("TEXT11"),
+    plotOutput("aucPlots")
+    
   )
 ))
